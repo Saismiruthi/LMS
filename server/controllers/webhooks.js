@@ -17,20 +17,24 @@ export const clerkWebhooks = async (req, res) => {
 
         switch(type) {
             case 'user.created' : {
+                console.log("Webhook triggered");
+
                 const userData = {
                     _id: data.id,
                     email: data.email_addresses[0].email_address,
                     name: data.first_name + " " + data.last_name,
                     imageUrl: data.image_url,
 
-                }
-                await User.create(userData)
-                res.json({})
-                break;
+                };
+
+                console.log("User date : ",userData)
+                const user = await User.create(userData)
+                console.log("Saved user:",user);
+                return res.json({success: true});
             }
             case 'user.updated' : {
                 const userData = {
-                    email: data.email_address[0].email_address,
+                    email: data.email_addresses[0].email_address,
                     name: data.first_name + " " + data.last_name,
                     imageUrl: data.image_url,
                 }
@@ -47,6 +51,10 @@ export const clerkWebhooks = async (req, res) => {
                 break;
         }
     }catch(error) {
-        res.json({success: false, message: error.message})
+        console.error("Webhook Error:", error);
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
     }
 }
