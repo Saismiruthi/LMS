@@ -3,6 +3,7 @@ import Course from "../models/Course.js";
 import { cloudinary } from "../configs/cloudinary.js";
 import fs from 'fs';
 import { Purchase } from "../models/Purchase.js";
+import User from '../models/User.js'
 
 export const updateRoleToEducator = async (req, res) => {
     try {
@@ -86,7 +87,7 @@ export const getEducatorCourses = async(req,res)=> {
 
 //Get Educator Dashboard Data (Total Earning, Enrolled Students, No of Courses)
 
-export const educatorDashboardData = async() => {
+export const educatorDashboardData = async(req,res) => {
     try {
         const auth = req.auth();
         const educator = auth.userId;
@@ -132,6 +133,7 @@ export const getEnrolledStudentData = async(req, res) => {
         const educator = auth.userId;
         const courses = await Course.find({educator})
 
+         const courseIds = courses.map(course => course._id);
         const purchases = await Purchase.find({
             courseId: {$in: courseIds},
             status: 'completed'

@@ -1,10 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import uniqid from 'uniqid';
 import Quill from 'quill';
 import { assets } from '../../assets/assets';
-
+import { AppContext } from '../../context/AppContext';
+import { toast } from 'react-toastify';
+import axios from 'axios';
 
 const AddCourse = () => {
+ 
+  const { backendUrl, getToken} = useContext(AppContext)
   
   const quillRef = useRef(null);
   const editorRef = useRef(null);
@@ -20,6 +24,7 @@ const AddCourse = () => {
   const[lectureDetails, setLectureDetails] = useState(
     {
       lectureTitle: '',
+      lectureDescription:'',
       lectureDuration : '',
       lectureUrl : '',
       isPreviewFree : false,
@@ -84,6 +89,7 @@ const addLecture = () => {
   setShowPopup(false);
   setLectureDetails({
     lectureTitle : '',
+    lectureDescription:'',
     lectureDuration : '',
     lectureUrl : '',
     isPreviewFree : false,
@@ -92,7 +98,45 @@ const addLecture = () => {
 
 
 const handleSubmit = async (e) => {
-  e.preventDefault()
+  try {
+    e.preventDefault()
+    if(!image){
+      toast.error('Thumbnail Not Selected')
+    }
+
+    const CourseData = {
+      courseTitle,
+      courseDescription : quillRef.current.root.innerHTML,
+      coursePrice: Number(coursePrice),
+      discount: Number(discount),
+      courseContent: chapters,
+      isPublished: true,
+    }
+
+    const formData = new FormData()
+    formData.append('courseData', JSON.stringify(CourseData))
+    formData.append('image',image)
+
+    const token = await getToken()
+    const { data } = await axios.post(backendUrl + '/api/educator/add-course', formData, {headers: {Authorization: `Bearer ${token}`}})
+
+    if(data.success)
+    {
+      toast.success(data.message)
+      setCourseTitle('')
+      setCoursePrice(0)
+      setDiscount(0)
+      setImage(null)
+      setChapters([])
+      quillRef.current.root.innerHTML = ""
+    }
+    else{
+      toast.error(data.message)
+    }
+  } catch (error) {
+    toast.error(error.message)
+  }
+  
 };
 
  useEffect (() => {
@@ -176,7 +220,19 @@ const handleSubmit = async (e) => {
               <p>Lecture Title</p>
               <input type="text" className='mt-1 block w-full border rounded py-1 px-2' value={lectureDetails.lectureTitle} onChange={(e) => setLectureDetails({ ...lectureDetails , lectureTitle : e.target.value})}/>
             </div>
-
+                  <div className="mb-2">
+          <p>Lecture Description</p>
+          <textarea
+            className="mt-1 block w-full border rounded py-1 px-2"
+            value={lectureDetails.lectureDescription}
+            onChange={(e) =>
+              setLectureDetails({
+                ...lectureDetails,
+                lectureDescription: e.target.value,
+              })
+            }
+          />
+        </div>
             <div className='mb-2'>
               <p> Duration (minutes)
               </p>
