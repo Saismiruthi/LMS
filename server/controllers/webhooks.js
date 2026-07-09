@@ -69,7 +69,7 @@ export const stripeWebhooks = async (request, response) => {
 
         const sig = request.headers["stripe-signature"];
 
-        const event = Stripe.webhooks.constructEvent(
+        const event = stripeInstance.webhooks.constructEvent(
             request.body,
             sig,
             process.env.STRIPE_WEBHOOK_SECRET
@@ -79,24 +79,47 @@ export const stripeWebhooks = async (request, response) => {
 
         switch (event.type) {
 
-            case "payment_intent.succeeded": {
+            case "checkout.session.completed": {
 
-                const paymentIntent = event.data.object;
+                console.log("=== CHECKOUT SESSION COMPLETED ===");
 
-                console.log("Payment Intent ID:", paymentIntent.id);
+                const session = event.data.object;
 
-                const session = await stripeInstance.checkout.sessions.list({
-                    payment_intent: paymentIntent.id
-                });
+                const purchaseId = session.metadata?.purchaseId;
 
-                console.log("Session Count:", session.data.length);
-                console.dir(session, { depth: null });
-
-                if (session.data.length === 0) {
-                    throw new Error("No checkout session found.");
+                if (!purchaseId) {
+                    throw new Error("Purchase ID not found");
                 }
 
-                // Stop here temporarily
+                const purchaseData = await Purchase.findById(purchaseId);
+
+                if (!purchaseData) {
+                    throw new Error("Purchase not found");
+                }
+
+                purchaseData.status = "completed";
+                await purchaseData.save();
+
+                await User.findByIdAndUpdate(
+                    purchaseData.userId,
+                    {
+                        $addToSet: {
+                            enrolledCourses: purchaseData.courseId
+                        }
+                    }
+                );
+
+                await Course.findByIdAndUpdate(
+                    purchaseData.courseId,
+                    {
+                        $addToSet: {
+                            enrolledStudents: purchaseData.userId
+                        }
+                    }
+                );
+
+                console.log("Purchase completed successfully");
+
                 break;
             }
 
@@ -112,9 +135,7 @@ export const stripeWebhooks = async (request, response) => {
 
     } catch (err) {
 
-        console.log("========== WEBHOOK ERROR ==========");
-        console.error(err);
-        console.log("===================================");
+        console.log(err);
 
         return response.status(500).json({
             success: false,
