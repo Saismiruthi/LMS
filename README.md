@@ -48,43 +48,41 @@ Access an educator dashboard
 
 Student Features
 
-Secure user authentication
+🔐 Secure user authentication
 
-Course browsing and search
+📚 Course browsing and search
 
-Course details
+📖 Course details
 
-Course purchasing using Stripe
+💳 Course purchasing using Stripe
 
-Enrolled courses
+🎥 Lecture player
 
-Lecture player
+📈 Course progress tracking
 
-Course progress tracking
+✅ Lecture completion
 
-Lecture completion
-
-Course ratings
+⭐ Course ratings
 
 Educator Features
 
-Educator authentication and authorization
+🔐 Educator authentication and authorization
 
-Become an educator
+👨‍🏫 Become an educator
 
-Course creation
+➕ Course creation
 
-Lecture management
+📝 Lecture management
 
-Course thumbnail upload
+🖼️ Course thumbnail upload
 
-Cloudinary media storage
+☁️ Cloudinary media storage
 
-Educator course management
+📚 Educator course management
 
-Enrolled student information
+👥 Enrolled student information
 
-Earnings and dashboard information
+💰 Earnings and dashboard information
 
 💳 Payment System
 
@@ -160,21 +158,36 @@ Students can rate courses they have purchased. The backend validates enrollment 
 
 The project follows a client-server architecture.
 
-Student / Educator
-        ↓
-React Frontend + Vite
-        ↓
-REST API
-        ↓
-Express Backend + Node.js
-        ↓
-   ┌────┼──────────┐
-   ↓    ↓          ↓
-MongoDB Cloudinary Stripe
-Mongoose  Media   Payments
-        ↓
-      Clerk
- Authentication
+                    ┌─────────────────────┐
+                    │   Student /         │
+                    │   Educator          │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │ React Frontend      │
+                    │ Vite                │
+                    └──────────┬──────────┘
+                               │
+                            REST API
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │ Express Backend     │
+                    │ Node.js             │
+                    └──────────┬──────────┘
+                               │
+              ┌────────────────┼────────────────┐
+              │                │                │
+              ▼                ▼                ▼
+        ┌───────────┐   ┌────────────┐   ┌────────────┐
+        │ MongoDB   │   │ Cloudinary │   │   Stripe   │
+        │ Mongoose  │   │   Media    │   │  Payments  │
+        └───────────┘   └────────────┘   └────────────┘
+
+                    ┌─────────────────────┐
+                    │ Clerk Authentication│
+                    └─────────────────────┘
 
 🔄 Application Workflow
 
@@ -356,7 +369,7 @@ Application deployment
 
 🗄️ Database Design
 
-Main models:
+The main database models are:
 
 User
 
@@ -532,8 +545,9 @@ checkout.session.completed
 
 Sensitive configuration should be stored in environment variables.
 
-Examples:
+Example backend configuration:
 
+PORT=5000
 MONGODB_URI=your_mongodb_connection_string
 CLERK_SECRET_KEY=your_clerk_secret_key
 CLERK_WEBHOOK_SECRET=your_clerk_webhook_secret
@@ -542,6 +556,12 @@ STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
 CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
 CLOUDINARY_API_KEY=your_cloudinary_api_key
 CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+
+Frontend example:
+
+VITE_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+
+Use the exact environment variable names configured in your application source code.
 
 Never commit real credentials, .env files, API keys, database passwords, Stripe secrets, Clerk secrets, Cloudinary secrets, or webhook secrets to GitHub.
 
@@ -592,13 +612,15 @@ CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
 CLOUDINARY_API_KEY=your_cloudinary_api_key
 CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 
-Configure the frontend Clerk publishable key as required by the frontend environment.
+Configure the frontend Clerk publishable key in the frontend environment.
 
 Example:
 
 VITE_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
 
 ▶️ Running the Application
+
+The frontend and backend run as separate applications.
 
 Start Backend
 
@@ -637,7 +659,6 @@ Backend
 https://lms-backend-vert-seven.vercel.app/
 
 The backend is deployed using Vercel. A complete production setup also requires the frontend and external service environment variables to be configured correctly.
-
 
 🧠 Challenges & Solutions
 
@@ -823,14 +844,16 @@ If you plan to distribute this project as open source, add an appropriate LICENS
 
 👩‍💻 Author
 
-Saismiruthi
+Sai Smiruthi
 
 Full-Stack Developer | MERN Stack | Software Development
 
-GitHub:
+GitHub
+
 https://github.com/Saismiruthi
 
-Project Repository:
+Project Repository
+
 https://github.com/Saismiruthi/LMS
 
 ⭐ Project Highlights
